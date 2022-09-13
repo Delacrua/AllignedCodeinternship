@@ -7,7 +7,7 @@ def get_nearest_lucky_ticket(ticket_number: int) -> int:
     """
     def _is_lucky(number: int) -> bool:
         """
-        Helper function to find if number is lucky in terms of the task
+        Helper function to find if a six-digit number is lucky in terms of the task
         :param number: given number
         :return: True if number is lucky, else False
         """
@@ -16,6 +16,8 @@ def get_nearest_lucky_ticket(ticket_number: int) -> int:
 
     if _is_lucky(ticket_number):
         return ticket_number
+    elif ticket_number == 100_000:  # set this as a unique case as a lower number will be 5-digit
+        return 100_001
     else:
         higher_number = ticket_number + 1
         while not _is_lucky(higher_number):
@@ -28,8 +30,11 @@ def get_nearest_lucky_ticket(ticket_number: int) -> int:
 
 
 if __name__ == '__main__':
-    assert get_nearest_lucky_ticket(111111) == 111111
-    assert get_nearest_lucky_ticket(123322) == 123321
-    assert get_nearest_lucky_ticket(123320) == 123321
-    assert get_nearest_lucky_ticket(333999) != 333900
-    assert get_nearest_lucky_ticket(333999) == 334019
+    assert get_nearest_lucky_ticket(111_111) == 111_111
+    assert get_nearest_lucky_ticket(123_322) == 123_321
+    assert get_nearest_lucky_ticket(123_320) == 123_321
+    assert get_nearest_lucky_ticket(333_999) != 333_900
+    assert get_nearest_lucky_ticket(333_999) == 334_019
+    assert get_nearest_lucky_ticket(100_000) == 100_001
+    assert get_nearest_lucky_ticket(999_999) == 999_999
+    assert get_nearest_lucky_ticket(999_998) == 999_999
