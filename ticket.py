@@ -20,13 +20,14 @@ def get_nearest_lucky_ticket(ticket_number: int) -> int:
         return 100_001
     else:
         higher_number = ticket_number + 1
-        while not _is_lucky(higher_number):
-            higher_number += 1
         lower_number = ticket_number - 1
-        while not _is_lucky(lower_number):
+        while True:
+            if _is_lucky(lower_number):
+                return lower_number
+            elif _is_lucky(higher_number):
+                return higher_number
+            higher_number += 1
             lower_number -= 1
-
-        return lower_number if ticket_number - lower_number <= higher_number - ticket_number else higher_number
 
 
 if __name__ == '__main__':
