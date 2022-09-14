@@ -68,9 +68,10 @@ def check_card_number_str(card_number: str) -> bool:
 
 def generate_card_number(system: str = 'visa'):
     """
-    The function generates possible card numbers using Luhn's algorithm for
-    two systems - Visa and Mastercard
-    :param system: card system specification, either "visa" or "mastercard"
+    The function generates possible card numbers using Luhn's algorithm
+    for two systems - Visa and Mastercard
+    :param system: card system specification, either "visa" or
+    "mastercard"
     :return: valid card number
     for given system
     """
