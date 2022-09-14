@@ -1,9 +1,11 @@
 from typing import Union
 
 
-def merge(left: Union[list, tuple], right: Union[list, tuple]) -> Union[list, tuple]:
+def merge(left: Union[list, tuple], right: Union[list, tuple]) -> \
+        Union[list, tuple]:
     """
-    The function merges two sorted lists or tuples into a new list or tuple, that contains items of both original
+    The function merges two sorted lists or tuples into a new list or tuple,
+    that contains items of both original
     collections combined in sorted order
     :param left: first sorted collection
     :param right: second sorted collection
@@ -38,14 +40,16 @@ def merge(left: Union[list, tuple], right: Union[list, tuple]) -> Union[list, tu
         for item in right_iterator:
             result.append(item)
 
-    return tuple(result) if isinstance(left, tuple) and isinstance(right, tuple) else result
+    return tuple(result) if isinstance(left, tuple) and \
+                            isinstance(right, tuple) else result
 
 
 if __name__ == '__main__':
     assert merge([1, 2, 7], [3]) == [1, 2, 3, 7]
     assert merge((3, 15), (7, 8)) == (3, 7, 8, 15)
     assert merge([1, 2, 7, 9, 11, 42], [3, 5]) == [1, 2, 3, 5, 7, 9, 11, 42]
-    assert merge(['a', 'c'], ['b', 'd', 'e', 'f', 'g']) == ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    assert merge(['a', 'c'], ['b', 'd', 'e', 'f', 'g']) == ['a', 'b', 'c', 'd',
+                                                            'e', 'f', 'g']
     assert merge((1, 2), (3, 5, 7)) == (1, 2, 3, 5, 7)
     assert merge((), (3, 5, 7)) == (3, 5, 7)
     assert merge([1, 2, 5], []) == [1, 2, 5]

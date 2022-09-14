@@ -101,3 +101,4 @@ if __name__ == '__main__':
     assert check_card_number_str('5082337440657829 ')  # valid Mastercard
     assert check_card_number(generate_card_number('visa'))
     assert check_card_number(generate_card_number('mastercard'))
+
