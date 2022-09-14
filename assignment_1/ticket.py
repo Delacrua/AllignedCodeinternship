@@ -17,20 +17,15 @@ def get_nearest_lucky_ticket(ticket_number: int) -> int:
         digits = [int(digit) for digit in str(number)]
         return sum(digits[:3]) == sum(digits[3:])
 
-    if _is_lucky(ticket_number):
-        return ticket_number
-    elif ticket_number == 100_000:  # unique as lower number is 5-digit
-        return 100_001
-    else:
-        higher_number = ticket_number + 1
-        lower_number = ticket_number - 1
-        while True:
-            if _is_lucky(lower_number):
-                return lower_number
-            elif _is_lucky(higher_number):
-                return higher_number
-            higher_number += 1
-            lower_number -= 1
+    lower_number = ticket_number
+    higher_number = ticket_number + 1
+    while True:
+        if _is_lucky(lower_number):
+            return lower_number
+        elif _is_lucky(higher_number):
+            return higher_number
+        higher_number += 1
+        lower_number -= 1
 
 
 if __name__ == '__main__':

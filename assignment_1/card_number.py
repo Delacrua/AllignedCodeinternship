@@ -33,8 +33,7 @@ def check_card_number(card_number: int) -> bool:
     odd_digits, even_digits = [], []
     flag = None
     while card_number:
-        last_digit = card_number % 10
-        card_number //= 10
+        card_number, last_digit = divmod(card_number, 10)
         if flag is None:
             check_digit = last_digit
             flag = 'odd'

@@ -5,43 +5,33 @@ def merge(left: Union[list, tuple], right: Union[list, tuple]) -> \
         Union[list, tuple]:
     """
     The function merges two sorted lists or tuples into a new list or
-    tuple, that contains items of both original
-    collections combined in sorted order
+    tuple, that contains items of both original collections combined
+    in sorted order
     :param left: first sorted collection
     :param right: second sorted collection
     :return: a resulting sorted collection
     """
     result = []
-    if len(left) == 0:
-        result = [item for item in right]
-    elif len(right) == 0:
-        result = [item for item in left]
-    else:
-        left_iterator, right_iterator = iter(left), iter(right)
-        left_item, right_item = next(left_iterator), next(right_iterator)
-
-        while True:
+    left_iterator, right_iterator = iter(left), iter(right)
+    left_item, right_item = next(left_iterator, []), next(right_iterator, [])
+    while len(result) < len(left) + len(right):
+        if left_item and right_item:
             if left_item <= right_item:
                 result.append(left_item)
-                try:
-                    left_item = next(left_iterator)
-                except StopIteration:
-                    result.append(right_item)
-                    break
+                left_item = next(left_iterator, [])
             else:
                 result.append(right_item)
-                try:
-                    right_item = next(right_iterator)
-                except StopIteration:
-                    result.append(left_item)
-                    break
-        for item in left_iterator:
-            result.append(item)
-        for item in right_iterator:
-            result.append(item)
+                right_item = next(right_iterator, [])
+        else:
+            if left_item:
+                result.append(left_item)
+                left_item = next(left_iterator, [])
+            if right_item:
+                result.append(right_item)
+                right_item = next(right_iterator, [])
 
     return tuple(result) if isinstance(left, tuple) and \
-                            isinstance(right, tuple) else result
+        isinstance(right, tuple) else result
 
 
 if __name__ == '__main__':
