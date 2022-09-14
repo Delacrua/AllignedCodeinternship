@@ -1,16 +1,16 @@
 def get_nearest_lucky_ticket(ticket_number: int) -> int:
     """
-    The function returns the nearest lucky ticket number to the given ticket
-    number (according to the task number is lucky if sum of its first three
-    digits is equal to sum of its last three digits)
+    The function returns the nearest lucky ticket number to the given
+    ticket number (according to the task number is lucky if sum of its
+    first three digits is equal to sum of its last three digits)
     :param ticket_number: given ticket number
     :return: nearest lucky ticket number
     """
 
     def _is_lucky(number: int) -> bool:
         """
-        Helper function to find if a six-digit number is lucky in terms of
-        the task
+        Helper function to find if a six-digit number is lucky in terms
+        of the task
         :param number: given number
         :return: True if number is lucky, else False
         """

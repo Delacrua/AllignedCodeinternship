@@ -4,8 +4,8 @@ from typing import Union
 def merge(left: Union[list, tuple], right: Union[list, tuple]) -> \
         Union[list, tuple]:
     """
-    The function merges two sorted lists or tuples into a new list or tuple,
-    that contains items of both original
+    The function merges two sorted lists or tuples into a new list or
+    tuple, that contains items of both original
     collections combined in sorted order
     :param left: first sorted collection
     :param right: second sorted collection
