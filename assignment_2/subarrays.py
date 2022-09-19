@@ -7,9 +7,15 @@ def get_subarrays_count(integers: list[int], number: int) -> int:
     :return: count of all segments that satisfy task's conditions
     """
     count = 0
-    for left in range(len(integers)):
-        for right in range(left, len(integers)):
-            if sum(integers[left:right + 1]) == number:
+    length = len(integers)
+    sums = [[0 for _ in range(length + 1)] for _ in range(length + 1)]
+    for row in range(1, length + 1):
+        for col in range(row, length + 1):
+            if row == col == 1:
+                sums[row][col] = integers[0]
+            else:
+                sums[row][col] = sums[row][col - 1] + integers[col - 1]
+            if sums[row][col] == number:
                 count += 1
     return count
 
@@ -18,3 +24,4 @@ if __name__ == '__main__':
     assert get_subarrays_count([0, 1, 0], 1) == 4
     assert get_subarrays_count([1, 1, 1], 2) == 2
     assert get_subarrays_count([1, 0, 1, 1], 2) == 3
+

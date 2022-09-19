@@ -5,7 +5,7 @@ def get_beauties(number: int) -> tuple[int, int]:
     'beautiful' in terms of task
     Beauty in terms of task means that number is positive and doesn't
     contain '0' in it
-    :param number:
+    :param number: the given integer
     :return:
     """
     def _check_beauty(checked_num: int) -> bool:
@@ -17,7 +17,7 @@ def get_beauties(number: int) -> tuple[int, int]:
         """
         return checked_num > 0 and '0' not in f'{checked_num}'
 
-    for num in range(1, number):
+    for num in range(1, number // 2 + 1):
         if _check_beauty(num) and _check_beauty(number - num):
             return num, number - num
 
@@ -26,3 +26,4 @@ if __name__ == '__main__':
     assert get_beauties(13) == (1, 12)
     assert get_beauties(1010) == (11, 999)
     assert get_beauties(61) == (2, 59)
+    assert get_beauties(9) == (1, 8)

@@ -15,10 +15,7 @@ def distribute(collection: list[Union[int, float]], number: int):
     result = [0 for _ in range(number)]
     for num in collection:
         index = (num - minimum) / interval
-        if index < number:
-            result[int(index)] += 1
-        else:
-            result[-1] += 1
+        result[min(int(index), number - 1)] += 1
     return result
 
 
