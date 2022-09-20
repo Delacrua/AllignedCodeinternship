@@ -14,7 +14,7 @@ class Solution(object):
         LinkedList
         :type list1: Optional[ListNode] a first linked list
         :type list2: Optional[ListNode] a second linked list
-        :rtype: Optional[ListNode]
+        :rtype: Optional[ListNode] a resulting sorted linked list
         """
         new_head = cur_new = ListNode()
 
