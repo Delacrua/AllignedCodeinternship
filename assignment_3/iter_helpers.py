@@ -1,6 +1,5 @@
-from collections.abc import Iterable
 from itertools import starmap
-from typing import Optional, Union
+from typing import Optional, Iterable, Union
 
 matrix = Iterable[Iterable[int]]
 vector = Iterable[Union[int, float, str]]
