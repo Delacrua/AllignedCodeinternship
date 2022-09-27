@@ -23,8 +23,21 @@ def scalar_product(vector_a: vector, vector_b: vector) -> Optional[int]:
     :param vector_b: second vector
     :return: a scalar product of two vectors
     """
+    def _convert_to_int(data: Union[str, float, int]) -> int:
+        """
+        A helper function for conversion of strings and string
+        representations of numbers in other counting systems to integer
+        :param data:
+        :return:
+        """
+        if isinstance(data, str) and data.startswith('0'):
+            return int(data, 0)
+        return int(data)
+
     try:
-        vectors = [list(map(int, vector_a)), list(map(int, vector_b))]
+        vectors = [list(map(_convert_to_int, vector_a)),
+                   list(map(_convert_to_int, vector_b))
+                   ]
     except ValueError:
         return None
     return sum(starmap(lambda x, y: x * y, vectors))
@@ -42,3 +55,6 @@ if __name__ == '__main__':
     assert expected == actual
     actual = scalar_product([1, 'xyz'], [-1, 1])
     assert actual is None
+
+    assert 1 == scalar_product([1, '0b10'], [-1, 1])
+    assert 0 == scalar_product([1, '0X01'], [-1, 1])

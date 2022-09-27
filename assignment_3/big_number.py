@@ -29,19 +29,18 @@ def index(data_string: str,
         """
         pointer = 0
         while True:
-            try:
-                res_list.append(string.index(str(num), pointer) + 1)
-                pointer = string.index(str(num), pointer) + len(str(num))
-            except ValueError:
+            found_index = string.find(str(num), pointer) + 1
+            if found_index != 0:
+                res_list.append(found_index)
+                pointer = found_index
+            else:
                 break
 
     result = []
     if isinstance(numbers, int):
-        _find_number(data_string, numbers, result)
-    else:
-        for number in numbers:
-            _find_number(data_string, number, result)
-
+        numbers = (numbers,)
+    for number in numbers:
+        _find_number(data_string, number, result)
     return len(result), sorted(result)[:k]
 
 
