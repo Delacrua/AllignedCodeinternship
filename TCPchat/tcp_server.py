@@ -28,12 +28,12 @@ class TCPChatServer:
     def kick_user(self, nickname_to_kick):
         if nickname_to_kick in self.nicknames:
             client_to_kick = self.nicknames[nickname_to_kick]
-            client_to_kick.send('You were kicked by the admin'.encode('utf-8'))
+            print(f'{nickname_to_kick} was kicked')
+            self.broadcast(
+                f'{nickname_to_kick} was kicked by the admin'.encode('utf-8'))
             self.clients.pop(client_to_kick)
             self.nicknames.pop(nickname_to_kick)
             client_to_kick.close()
-            self.broadcast(f'{nickname_to_kick} '
-                           f'was kicked by the admin'.encode('utf-8'))
 
     def ban_user(self, nickname_to_ban):
         self.banned_users.add(nickname_to_ban)
@@ -42,19 +42,20 @@ class TCPChatServer:
                        f'was banned by the admin'.encode('utf-8'))
 
     def handle(self, client):
+        nickname = self.clients[client]
         while True:
             try:
                 message = client.recv(1024)
-                nickname = self.clients[client]
                 msg = message.decode('utf-8').strip()[len(nickname) + 2:]
+
                 if msg.startswith('/kick'):
                     if nickname in ADMINS:
                         name_to_kick = msg[6:]
-                        print(name_to_kick)
                         self.kick_user(name_to_kick)
                     else:
                         client.send('Only admin can kick users'.encode('utf-8')
                                     )
+
                 elif msg.startswith('/ban'):
                     if nickname in ADMINS:
                         name_to_ban = msg[5:]
@@ -65,12 +66,17 @@ class TCPChatServer:
                 else:
                     self.broadcast(message)
 
-            except Exception:
-                nickname = self.clients[client]
+            except ConnectionAbortedError:
+                self.broadcast(f'{nickname} left the chat'.encode('utf-8'))
+                break
+
+            except Exception as exc:
                 self.clients.pop(client)
                 self.nicknames.pop(nickname)
-                client.close()
+                print(f'client with nickname "{nickname}" '
+                      f'removed after error: {exc}')
                 self.broadcast(f'{nickname} left the chat'.encode('utf-8'))
+                client.close()
                 break
 
     def receive(self):
