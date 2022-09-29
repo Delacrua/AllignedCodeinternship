@@ -12,6 +12,8 @@ class TCPChatServer:
         self.host = host
         self.port = port
         self.clients = {}
+        self.nicknames = {}
+        self.banned_users = set()
         if sock is None:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -23,14 +25,50 @@ class TCPChatServer:
         for client in self.clients:
             client.send(message)
 
+    def kick_user(self, nickname_to_kick):
+        if nickname_to_kick in self.nicknames:
+            client_to_kick = self.nicknames[nickname_to_kick]
+            client_to_kick.send('You were kicked by the admin'.encode('utf-8'))
+            self.clients.pop(client_to_kick)
+            self.nicknames.pop(nickname_to_kick)
+            client_to_kick.close()
+            self.broadcast(f'{nickname_to_kick} '
+                           f'was kicked by the admin'.encode('utf-8'))
+
+    def ban_user(self, nickname_to_ban):
+        self.banned_users.add(nickname_to_ban)
+        print(f'{nickname_to_ban} was banned')
+        self.broadcast(f'{nickname_to_ban} '
+                       f'was banned by the admin'.encode('utf-8'))
+
     def handle(self, client):
         while True:
             try:
                 message = client.recv(1024)
-                self.broadcast(message)
+                nickname = self.clients[client]
+                msg = message.decode('utf-8').strip()[len(nickname) + 2:]
+                if msg.startswith('/kick'):
+                    if nickname in ADMINS:
+                        name_to_kick = msg[6:]
+                        print(name_to_kick)
+                        self.kick_user(name_to_kick)
+                    else:
+                        client.send('Only admin can kick users'.encode('utf-8')
+                                    )
+                elif msg.startswith('/ban'):
+                    if nickname in ADMINS:
+                        name_to_ban = msg[5:]
+                        self.kick_user(name_to_ban)
+                        self.ban_user(name_to_ban)
+                    else:
+                        client.send('Only admin can ban users'.encode('utf-8'))
+                else:
+                    self.broadcast(message)
+
             except Exception:
                 nickname = self.clients[client]
                 self.clients.pop(client)
+                self.nicknames.pop(nickname)
                 client.close()
                 self.broadcast(f'{nickname} left the chat'.encode('utf-8'))
                 break
@@ -42,6 +80,12 @@ class TCPChatServer:
 
             client.send('NICK'.encode('utf-8'))
             nickname = client.recv(1024).decode('utf-8')
+
+            if nickname in self.banned_users:
+                client.send('BAN'.encode('utf-8'))
+                client.close()
+                continue
+
             if nickname in ADMINS:
                 client.send('PASS'.encode('utf-8'))
                 password = client.recv(1024).decode('utf-8')
@@ -49,7 +93,9 @@ class TCPChatServer:
                     client.send('REFUSE'.encode('utf-8'))
                     client.close()
                     continue
+
             self.clients[client] = nickname
+            self.nicknames[nickname] = client
 
             print(f'Nickname of the client is {nickname}')
             self.broadcast(f'{nickname} joined the chat'.encode('utf-8'))

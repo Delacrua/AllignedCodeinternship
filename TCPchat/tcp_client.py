@@ -38,10 +38,15 @@ class TCPChatClient:
                         if self.socket.recv(1024).decode('utf-8') == 'REFUSE':
                             print('Connection refused. Wrong password.')
                             self.stop = True
+                    elif new_message == 'BAN':
+                        print('Connection refused. Banned nickname.')
+                        self.socket.close()
+                        self.stop = True
                 else:
                     print(message)
             except Exception as exc:
                 print(f'An error occurred: {exc}')
+                break
 
     def connect_to_server(self):
         self.socket.connect((self.host, self.port))
@@ -58,5 +63,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
