@@ -14,9 +14,9 @@ client.connect((HOST, PORT))
 def receive():
     while True:
         try:
-            message = client.recv(1024).decode('ascii')
+            message = client.recv(1024).decode('utf-8')
             if message == 'NICK':
-                client.send(NICK.encode('ascii'))
+                client.send(NICK.encode('utf-8'))
             else:
                 print(message)
         except Exception as exc:
@@ -26,7 +26,7 @@ def receive():
 def write():
     while True:
         message = f'{NICK}: {input("")}'
-        client.send(message.encode('ascii'))
+        client.send(message.encode('utf-8'))
 
 
 receive_thread = threading.Thread(target=receive)
