@@ -1,7 +1,7 @@
 import threading
 import socket
 
-
+ADMINS = {'admin': hash('adminpass')}
 HOST = '127.0.0.1'
 PORT = 52525
 
@@ -42,6 +42,13 @@ class TCPChatServer:
 
             client.send('NICK'.encode('utf-8'))
             nickname = client.recv(1024).decode('utf-8')
+            if nickname in ADMINS:
+                client.send('PASS'.encode('utf-8'))
+                password = client.recv(1024).decode('utf-8')
+                if hash(password) != ADMINS[nickname]:
+                    client.send('REFUSE'.encode('utf-8'))
+                    client.close()
+                    continue
             self.clients[client] = nickname
 
             print(f'Nickname of the client is {nickname}')

@@ -6,25 +6,38 @@ PORT = 52525
 
 
 class TCPChatClient:
+    stop = False
 
     def __init__(self, host=HOST, port=PORT, sock=None):
         self.host = host
         self.port = port
         self.nickname = input('Choose a nickname: ')
+        if self.nickname == 'admin':
+            self.password = input('Input admin password: ')
         if sock is None:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def send_message(self):
         while True:
+            if self.stop:
+                break
             message = f'{self.nickname}: {input("")}'
             self.socket.send(message.encode('utf-8'))
 
     def receive(self):
         while True:
+            if self.stop:
+                break
             try:
                 message = self.socket.recv(1024).decode('utf-8')
                 if message == 'NICK':
                     self.socket.send(self.nickname.encode('utf-8'))
+                    new_message = self.socket.recv(1024).decode('utf-8')
+                    if new_message == 'PASS':
+                        self.socket.send(self.password.encode('utf-8'))
+                        if self.socket.recv(1024).decode('utf-8') == 'REFUSE':
+                            print('Connection refused. Wrong password.')
+                            self.stop = True
                 else:
                     print(message)
             except Exception as exc:
