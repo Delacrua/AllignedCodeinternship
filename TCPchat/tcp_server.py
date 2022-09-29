@@ -5,52 +5,59 @@ import socket
 HOST = '127.0.0.1'
 PORT = 52525
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((HOST, PORT))
-server.listen()
 
-clients = []
-nicknames = []
+class TCPChatServer:
+
+    def __init__(self, host=HOST, port=PORT, sock=None):
+        self.host = host
+        self.port = port
+        self.clients = {}
+        if sock is None:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def run_server(self):
+        self.socket.bind((self.host, self.port))
+        self.socket.listen()
+
+    def broadcast(self, message):
+        for client in self.clients:
+            client.send(message)
+
+    def handle(self, client):
+        while True:
+            try:
+                message = client.recv(1024)
+                self.broadcast(message)
+            except Exception:
+                nickname = self.clients[client]
+                self.clients.pop(client)
+                client.close()
+                self.broadcast(f'{nickname} left the chat'.encode('utf-8'))
+                break
+
+    def receive(self):
+        while True:
+            client, address = self.socket.accept()
+            print(f'Connected with {str(address)}')
+
+            client.send('NICK'.encode('utf-8'))
+            nickname = client.recv(1024).decode('utf-8')
+            self.clients[client] = nickname
+
+            print(f'Nickname of the client is {nickname}')
+            self.broadcast(f'{nickname} joined the chat'.encode('utf-8'))
+            client.send('connected to the server'.encode('utf-8'))
+
+            thread = threading.Thread(target=self.handle, args=(client, ))
+            thread.start()
 
 
-def broadcast(message):
-    for client in clients:
-        client.send(message)
-
-
-def handle(client):
-    while True:
-        try:
-            message = client.recv(1024)
-            broadcast(message)
-        except Exception:
-            index = clients.index(client)
-            clients.remove(client)
-            client.close()
-            nickname = nicknames[index]
-            nicknames.remove(nickname)
-            broadcast(f'{nickname} left the chat'.encode('ascii'))
-            break
-
-
-def receive():
-    while True:
-        client, address = server.accept()
-        print(f'Connected with {str(address)}')
-
-        client.send('NICK'.encode('ascii'))
-        nickname = client.recv(1024).decode('ascii')
-        nicknames.append(nickname)
-        clients.append(client)
-
-        print(f'Nickname of the client is {nickname}')
-        broadcast(f'{nickname} joined the chat'.encode('ascii'))
-        client.send('connected to the server'.encode('ascii'))
-
-        thread = threading.Thread(target=handle, args=(client, ))
-        thread.start()
+def main():
+    server = TCPChatServer()
+    server.run_server()
+    server.receive()
 
 
 if __name__ == '__main__':
     print('The TCP server is listening')
-    receive()
+    main()
