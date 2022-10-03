@@ -31,17 +31,64 @@ def memorize(func):
     return wrapper
 
 
+def convolve(k: int):
+    """
+    a decorator with passing of an argument 'k' to implement k times
+    function convolution
+    :param k: a number of convolutions
+    :return: a decorated func
+    """
+    assert isinstance(k, int) and k > 0
+
+    def decorator(func):
+        """
+        A decorator to wrap a function 'func' with a wrapper
+        :param func: a function to wrap
+        :return: a wrapped func
+        """
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            """
+            a wrapper for convolving given func k times
+            :param args: positional arguments for the func
+            :param kwargs: keyword arguments for the func
+            :return: wrapped func
+            """
+            result = func(*args, **kwargs)
+            for i in range(k - 1):
+                result = func(result)
+            return result
+        return wrapper
+    return decorator
+
+
 if __name__ == '__main__':
+    print('----->memorize block<-----')
+
     @memorize
-    def fib(x):
-        if x == 0:
+    def fib(number):
+        if number == 0:
             return 0
-        elif x == 1:
+        elif number == 1:
             return 1
         else:
-            return fib(x - 1) + fib(x - 2)
+            return fib(number - 1) + fib(number - 2)
 
-
-    print(fib(x=10))
+    print(fib(number=10))
     print(fib(100))
-    print(fib(x=100))
+    print(fib(number=100))
+
+    print('----->convolve block<-----')
+
+    @convolve(3)
+    def f(some_argument):
+        return 2 * some_argument
+    x = 1
+    assert f(x) == 2 * (2 * (2 * x))  # f(f(f(x)))
+
+    @convolve(1)
+    def f2(some_argument):
+        return 2 * some_argument
+    x = 1
+    assert f2(x) == 2 * x  # f(x)
+
