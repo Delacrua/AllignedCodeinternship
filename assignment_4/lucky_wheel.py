@@ -47,8 +47,9 @@ class StreamersGameChooser:
         :return: chosen value
         """
         games = list(self._donations_dict.keys())
-        weights = [value / sum(self._donations_dict.values()) for value
-                   in self._donations_dict.values()]
+        total_donations = sum(self._donations_dict.values())
+        weights = [value / total_donations
+                   for value in self._donations_dict.values()]
         chosen_game = random.choices(games, weights)[0]
         self._donations_dict.pop(chosen_game)
         return chosen_game
