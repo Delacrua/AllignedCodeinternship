@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from tcp_messages import ServerMessage
+
 HOST = '127.0.0.1'
 PORT = 52525
 
@@ -30,15 +32,17 @@ class TCPChatClient:
                 break
             try:
                 message = self.socket.recv(1024).decode('utf-8')
-                if message == 'NICK':
+                if message == str(ServerMessage.NICK):
                     self.socket.send(self.nickname.encode('utf-8'))
                     new_message = self.socket.recv(1024).decode('utf-8')
-                    if new_message == 'PASS':
+                    if new_message == str(ServerMessage.PASS):
                         self.socket.send(self.password.encode('utf-8'))
-                        if self.socket.recv(1024).decode('utf-8') == 'REFUSE':
+                        if self.socket.recv(1024).decode('utf-8') == str(
+                                ServerMessage.REFUSE
+                        ):
                             print('Connection refused. Wrong password.')
                             self.stop = True
-                    elif new_message == 'BAN':
+                    elif new_message == str(ServerMessage.BAN):
                         print('Connection refused. Banned nickname.')
                         self.socket.close()
                         self.stop = True

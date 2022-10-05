@@ -1,6 +1,8 @@
 import threading
 import socket
 
+from tcp_messages import ServerMessage
+
 ADMINS = {'admin': hash('adminpass')}
 HOST = '127.0.0.1'
 PORT = 52525
@@ -84,19 +86,19 @@ class TCPChatServer:
             client, address = self.socket.accept()
             print(f'Connected with {str(address)}')
 
-            client.send('NICK'.encode('utf-8'))
+            client.send(str(ServerMessage.NICK).encode('utf-8'))
             nickname = client.recv(1024).decode('utf-8')
 
             if nickname in self.banned_users:
-                client.send('BAN'.encode('utf-8'))
+                client.send(str(ServerMessage.BAN).encode('utf-8'))
                 client.close()
                 continue
 
             if nickname in ADMINS:
-                client.send('PASS'.encode('utf-8'))
+                client.send(str(ServerMessage.PASS).encode('utf-8'))
                 password = client.recv(1024).decode('utf-8')
                 if hash(password) != ADMINS[nickname]:
-                    client.send('REFUSE'.encode('utf-8'))
+                    client.send(str(ServerMessage.REFUSE).encode('utf-8'))
                     client.close()
                     continue
 
