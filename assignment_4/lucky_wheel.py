@@ -15,7 +15,7 @@ class StreamersGameChooser:
         if donations_dict is None:
             self._donations_dict = defaultdict(int)
         else:
-            self._donations_dict = donations_dict
+            self._donations_dict = defaultdict(int, donations_dict)
 
     def __str__(self):
         """
