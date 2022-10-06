@@ -1,5 +1,7 @@
 import random
 
+from collections import defaultdict
+
 
 class StreamersGameChooser:
 
@@ -11,7 +13,7 @@ class StreamersGameChooser:
         :param donations_dict: a dictionary of donations
         """
         if donations_dict is None:
-            self._donations_dict = {}
+            self._donations_dict = defaultdict(int)
         else:
             self._donations_dict = donations_dict
 
@@ -37,8 +39,7 @@ class StreamersGameChooser:
         :param donation: given donation
         :return: None
         """
-        self._donations_dict[game.lower()] = \
-            self._donations_dict.get(game.lower(), 0) + donation
+        self._donations_dict[game.lower()] += donation
 
     def get_game(self):
         """
@@ -66,7 +67,7 @@ if __name__ == '__main__':
     wheel.add_game('Tales of Zestiria', 400)
     wheel.add_game('Final Fantasy 8', 750)
     wheel.add_game('Final Fantasy 7', 900)
-    wheel.add_game('Final Fantasy 10-2', 8000)
+    wheel.add_game('Final Fantasy 10-2', 800)
     wheel.add_game('Gothic 2', 1000)
     print(wheel)
     print(wheel.get_game())
