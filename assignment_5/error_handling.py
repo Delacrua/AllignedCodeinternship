@@ -52,7 +52,6 @@ def handle_error(
             :param kwargs: any number of keyword arguments
             :return:
             """
-            result = None
             func_delay = delay
             func_tries = tries if tries else True
 
@@ -63,7 +62,7 @@ def handle_error(
                 if type(func_tries) == int:
                     func_tries -= 1
                 try:
-                    result = func(*args, **kwargs)
+                    return func(*args, **kwargs)
                 except exc_type as exc:
                     if func_tries:
                         sleep(func_delay)
@@ -73,9 +72,6 @@ def handle_error(
                             logger.error(traceback.format_exc())
                         if re_raise:
                             raise exc
-                else:
-                    break
-            return result
 
         return wrapper
     return decorator
@@ -107,7 +103,7 @@ def handle_error_context(
 
 if __name__ == '__main__':
     print('----------->Decorator block<-------------')
-    # # Example 1
+    # Example 1
     # @handle_error(re_raise=False)
     # def some_function():
     #     x = 1 / 0  # ZeroDivisionError
