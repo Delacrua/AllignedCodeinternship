@@ -26,7 +26,7 @@ def handle_error(
         backoff: int = 1,
 ) -> Callable:
     """
-
+    A decorator used to handle and log exceptions
     :param re_raise: shows if Exceptions listed in exc_type will be
     reraised
     :param log_traceback: shows if traceback of Exceptions listed in
@@ -87,6 +87,15 @@ def handle_error_context(
         log_traceback: bool = True,
         exc_type: Union[Type[Exception], tuple[Type[Exception]]] = Exception,
 ):
+    """
+    A function-based context manager used to handle and log exceptions
+    :param re_raise: shows if Exceptions listed in exc_type will be
+    reraised
+    :param log_traceback: shows if traceback of Exceptions listed in
+    exc_type will be logged
+    :param exc_type: an Exception type or a tuple of Exception types
+    :return:
+    """
     try:
         yield
     except exc_type as exc:
