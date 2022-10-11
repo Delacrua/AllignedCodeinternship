@@ -65,7 +65,8 @@ def handle_error(
                         break
             elif isinstance(tries, int):
                 if tries <= 0:
-                    raise ValueError('tries argument must be a positive integer')
+                    raise ValueError('tries argument must be a positive '
+                                     'integer')
                 else:
                     func_tries = tries
                     while func_tries:
