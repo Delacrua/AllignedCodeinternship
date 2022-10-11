@@ -53,37 +53,27 @@ def handle_error(
             """
             result = None
             func_delay = delay
+            func_tries = tries if tries else True
 
-            if tries is None:
-                while True:
-                    try:
-                        result = func(*args, **kwargs)
-                    except exc_type:
+            if isinstance(func_tries, int) and func_tries < 0:
+                raise ValueError('tries argument must be a positive '
+                                 'integer')
+            while func_tries:
+                if type(func_tries) == int:
+                    func_tries -= 1
+                try:
+                    result = func(*args, **kwargs)
+                except exc_type as exc:
+                    if func_tries:
                         sleep(func_delay)
                         func_delay *= backoff
                     else:
-                        break
-            elif isinstance(tries, int):
-                if tries <= 0:
-                    raise ValueError('tries argument must be a positive '
-                                     'integer')
+                        if re_raise:
+                            raise exc
+                        if log_traceback:
+                            logger.error(traceback.format_exc())
                 else:
-                    func_tries = tries
-                    while func_tries:
-                        func_tries -= 1
-                        try:
-                            result = func(*args, **kwargs)
-                        except exc_type as exc:
-                            if func_tries:
-                                sleep(func_delay)
-                                func_delay *= backoff
-                            else:
-                                if re_raise:
-                                    raise exc
-                                if log_traceback:
-                                    logger.error(traceback.format_exc())
-                        else:
-                            break
+                    break
             return result
 
         return wrapper
@@ -126,5 +116,5 @@ if __name__ == '__main__':
     #     if random.random() < 0.75:
     #         x = 1 / 0  # ZeroDivisionError
     # some_function()
-
-    print('----------->Context manager block<-------------')
+    #
+    # print('----------->Context manager block<-------------')
