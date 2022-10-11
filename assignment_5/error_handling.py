@@ -5,7 +5,7 @@ import traceback
 
 from contextlib import contextmanager
 from time import sleep
-from typing import Optional, Union, Type, Callable
+from typing import Optional, Union, Type, Callable, Any
 
 logger = logging
 log_format = "%(levelname)s %(asctime)s - %(message)s"
@@ -44,7 +44,7 @@ def handle_error(
         :param func: given func
         :return: wrapped func
         """
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any):
             """
             a wrapper that implements the logics of handle_error
             decorator, according to arguments given
