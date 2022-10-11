@@ -3,6 +3,7 @@ import random
 import sys
 import traceback
 
+from contextlib import contextmanager
 from time import sleep
 from typing import Optional, Union, Type, Callable
 
@@ -68,16 +69,31 @@ def handle_error(
                         sleep(func_delay)
                         func_delay *= backoff
                     else:
-                        if re_raise:
-                            raise exc
                         if log_traceback:
                             logger.error(traceback.format_exc())
+                        if re_raise:
+                            raise exc
                 else:
                     break
             return result
 
         return wrapper
     return decorator
+
+
+@contextmanager
+def handle_error_context(
+        re_raise: bool = True,
+        log_traceback: bool = True,
+        exc_type: Union[Type[Exception], tuple[Type[Exception]]] = Exception,
+):
+    try:
+        yield
+    except exc_type as exc:
+        if log_traceback:
+            logger.error(traceback.format_exc())
+        if re_raise:
+            raise exc
 
 
 if __name__ == '__main__':
@@ -117,4 +133,18 @@ if __name__ == '__main__':
     #         x = 1 / 0  # ZeroDivisionError
     # some_function()
     #
-    # print('----------->Context manager block<-------------')
+    print('----------->Context manager block<-------------')
+    # # Example 1 - log traceback , reraise exception
+    # with handle_error_context(
+    #         log_traceback=True,
+    #         exc_type=ValueError
+    # ):
+    #     raise ValueError()
+
+    # # Example 2 - log traceback , don't reraise exception
+    # with handle_error_context(
+    #         log_traceback=True,
+    #         exc_type=ValueError,
+    #         re_raise=False
+    # ):
+    #     raise ValueError()
