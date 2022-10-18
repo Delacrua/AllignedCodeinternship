@@ -43,5 +43,5 @@ class SafeRequest:
 
 if __name__ == '__main__':
     test_url1 = 'https://api.github.com/events'
-    getter = SafeRequest(timeout=0.02)
+    getter = SafeRequest(timeout=5)
     resp = getter(url=test_url1)
