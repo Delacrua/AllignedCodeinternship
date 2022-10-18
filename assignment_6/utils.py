@@ -57,6 +57,7 @@ class SafeRequest:
 
 
 if __name__ == '__main__':
+    print('-----> SafeRequest block <-----')
     test_url1 = 'https://en.wikipedia.org/wiki/Agostino_Cornacchini'
     getter = SafeRequest(timeout=5)
     resp = getter(url=test_url1)
