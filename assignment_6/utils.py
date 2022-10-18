@@ -35,7 +35,7 @@ class SafeRequest:
 
     async def invoke(self, url: str) -> Union[bytes, None, NotSet]:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url) as response:
+            async with session.get(url=url, timeout=self._timeout) as response:
                 if response.status == requests.codes.ok:
                     response_data = await response.read()
                     return response_data
