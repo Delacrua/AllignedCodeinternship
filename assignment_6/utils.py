@@ -1,7 +1,6 @@
 import datetime
 import requests
 
-from requests.exceptions import ConnectTimeout
 from typing import Union
 
 _NOT_SET = object()
@@ -18,10 +17,7 @@ class SafeRequest:
 
     def __call__(self, url: str, *args, **kwargs):
         with requests.Session() as session:
-            try:
-                response = session.get(url=url, timeout=self._timeout)
-            except ConnectTimeout as exc:
-                raise exc
+            response = session.get(url=url, timeout=self._timeout)
         if response.status_code == requests.codes.ok:
             return response
         elif response.status_code == requests.codes.not_found:
