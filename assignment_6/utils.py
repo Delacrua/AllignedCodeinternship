@@ -3,7 +3,12 @@ import requests
 
 from typing import Union
 
-_NOT_SET = object()
+
+class NotSet:
+    pass
+
+
+_NOT_SET = NotSet()
 
 
 class SafeRequest:
@@ -15,11 +20,11 @@ class SafeRequest:
         self._timeout = timeout
         self.default = default
 
-    def __call__(self, url: str):
+    def __call__(self, url: str) -> Union[str, None, NotSet]:
         with requests.Session() as session:
             response = session.get(url=url, timeout=self._timeout)
         if response.status_code == requests.codes.ok:
-            return response
+            return response.content
         elif response.status_code == requests.codes.not_found:
             return self.default
         else:
@@ -38,6 +43,7 @@ class SafeRequest:
 
 
 if __name__ == '__main__':
-    test_url1 = 'https://api.github.com/events'
+    test_url1 = 'https://en.wikipedia.org/wiki/Agostino_Cornacchini'
     getter = SafeRequest(timeout=5)
     resp = getter(url=test_url1)
+    print(resp)
