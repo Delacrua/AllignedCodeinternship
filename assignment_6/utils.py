@@ -15,7 +15,7 @@ class SafeRequest:
         self._timeout = timeout
         self.default = default
 
-    def __call__(self, url: str, *args, **kwargs):
+    def __call__(self, url: str):
         with requests.Session() as session:
             response = session.get(url=url, timeout=self._timeout)
         if response.status_code == requests.codes.ok:
