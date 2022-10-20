@@ -4,7 +4,10 @@ import urllib.parse
 
 from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
 from typing import List
+
+import requests
 
 import settings
 
@@ -40,40 +43,45 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
                            for link in links]
         return processed_links
 
-    def collect_page_data(self, url: str) -> List[str]:
+    def collect_page_data(self, url: str, session: requests.Session) -> List[str]:
         url_crawler = self.url_crawler()
         url_parser = self.url_parser()
-        request_text = url_crawler(url)
+        request_text = url_crawler(url, session)
         internal_links = url_parser.parse(request_text)
         return internal_links
 
-    def run_single_time(self, url: str, visited: set, url_pool: list):
-        if url not in visited:
+    def run_single_time(self, url: str, visited: set, url_pool: list, session: requests.Session):
+        if url not in visited and len(visited) < self._page_limit:
             visited.add(url)
-            links = self.collect_page_data(url)
+            links = self.collect_page_data(url, session)
             processed_links = self._process_wiki_links(links)
             self._page_links[url] = processed_links
             url_pool.extend(processed_links)
 
     def collect_data_till_limit(self):
+        session = requests.Session()
         visited = set()
         url_pool = [self._start_url]
         while len(visited) < self._page_limit:
             link_pool_for_workers = url_pool[:]
             url_pool.clear()
-            with ThreadPoolExecutor(max_workers=10) as executor:
+            with ThreadPoolExecutor(max_workers=3) as executor:
                 executor.map(self.run_single_time,
                              link_pool_for_workers,
-                             visited,
-                             url_pool)
+                             repeat(visited),
+                             repeat(url_pool),
+                             repeat(session)
+                             )
 
 
 def main():
-    wiki_scrapper = WikiPageRankInfoAccumulator('https://en.wikipedia.org/wiki/California_Distinguished_School', 10)
+    wiki_scrapper = WikiPageRankInfoAccumulator('https://en.wikipedia.org/wiki/Prison_warden', 10)
     visited = set()
     url_pool = []
-    wiki_scrapper.run_single_time('https://en.wikipedia.org/wiki/California_Distinguished_School', visited, url_pool)
+    # wiki_scrapper.run_single_time('https://en.wikipedia.org/wiki/California_Distinguished_School', visited, url_pool)
+    wiki_scrapper.collect_data_till_limit()
     print(wiki_scrapper._page_links)
+    print(len(wiki_scrapper._page_links))
 
 
 if __name__ == '__main__':

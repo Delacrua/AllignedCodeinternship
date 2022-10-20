@@ -50,7 +50,7 @@ class WikiCrawler(Crawler):
     """
     a callable class that allows making requests to a URL
     """
-    def __call__(self, url: str) -> Union[str, None, settings.NotSet]:
+    def __call__(self, url: str, session: requests.Session) -> Union[str, None, settings.NotSet]:
         """
         method allows to make request to a given URL with given timeout
         and default values
@@ -59,7 +59,7 @@ class WikiCrawler(Crawler):
         :raises appropriate type Error if it happens during runtime
         except for the 404 status error
         """
-        with requests.Session() as session:
+        with session:
             response = session.get(url=url, timeout=self._timeout)
         if response.status_code == requests.codes.ok:
             return response.text
