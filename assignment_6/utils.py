@@ -51,7 +51,7 @@ class SafeRequest:
         :param default: a default value for whenever a request fails
         with 404 status
         """
-        self._timeout = timeout
+        self.timeout = timeout
         self.default = default
 
     def __call__(self, url: str) -> Union[bytes, None, NotSet]:
