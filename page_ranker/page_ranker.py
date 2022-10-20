@@ -1,8 +1,7 @@
 import re
-import time
 import urllib.parse
 
-from collections import defaultdict, deque
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from typing import List
@@ -20,7 +19,7 @@ class PageRankInfoAccumulator:
         self._start_url = start_url
         self._page_limit = page_limit
         self._page_links = defaultdict(list)
-        self._page_rank = defaultdict(list)
+        self._page_rank = {}
 
 
 class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
@@ -41,6 +40,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
     def _process_wiki_links(self, links: List[str]):
         processed_links = [urllib.parse.urljoin(self._url_mask, link)
                            for link in links]
+        processed_links = [link.strip().replace(' ', '_') for link in processed_links]
         return processed_links
 
     def collect_page_data(self, url: str, session: requests.Session) -> List[str]:
@@ -51,8 +51,9 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         return internal_links
 
     def run_single_time(self, url: str, visited: set, url_pool: list, session: requests.Session):
-        if url not in visited and len(visited) < self._page_limit:
+        if url not in visited:
             visited.add(url)
+        if len(self._page_links) < self._page_limit:
             links = self.collect_page_data(url, session)
             processed_links = self._process_wiki_links(links)
             self._page_links[url] = processed_links
@@ -62,10 +63,10 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         session = requests.Session()
         visited = set()
         url_pool = [self._start_url]
-        while len(visited) < self._page_limit:
+        while len(self._page_links) < self._page_limit:
             link_pool_for_workers = url_pool[:]
             url_pool.clear()
-            with ThreadPoolExecutor(max_workers=3) as executor:
+            with ThreadPoolExecutor(max_workers=50) as executor:
                 executor.map(self.run_single_time,
                              link_pool_for_workers,
                              repeat(visited),
@@ -73,16 +74,26 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
                              repeat(session)
                              )
 
-
-def main():
-    wiki_scrapper = WikiPageRankInfoAccumulator('https://en.wikipedia.org/wiki/Prison_warden', 10)
-    visited = set()
-    url_pool = []
-    # wiki_scrapper.run_single_time('https://en.wikipedia.org/wiki/California_Distinguished_School', visited, url_pool)
-    wiki_scrapper.collect_data_till_limit()
-    print(wiki_scrapper._page_links)
-    print(len(wiki_scrapper._page_links))
+    def count_page_rank(self):
+        """
+        The function counts page rank for wiki pages by reversing
+        dictionaries key-value pairs in a way that
+        each string from the lists of values becomes a key, and keys of the
+        original key-value pairs are put into lists of values for new keys
+        and saves results as
+        :return:
+        """
+        rev_data = {}
+        for key, values in self._page_links.items():
+            for value in values:
+                rev_data[value] = rev_data.get(value, [])
+                rev_data[value].append(key)
+        self._page_rank = {key: len(value) for key, value in rev_data.items()}
 
 
 if __name__ == '__main__':
-    main()
+    wiki_scrapper = WikiPageRankInfoAccumulator(
+        'https://en.wikipedia.org/wiki/Superintendent', 100)
+    wiki_scrapper.collect_data_till_limit()
+    wiki_scrapper.count_page_rank()
+    print(wiki_scrapper._page_rank)
