@@ -59,8 +59,7 @@ class WikiCrawler(Crawler):
         :raises appropriate type Error if it happens during runtime
         except for the 404 status error
         """
-        with session:
-            response = session.get(url=url, timeout=self._timeout)
+        response = session.get(url=url, timeout=self._timeout)
         if response.status_code == requests.codes.ok:
             return response.text
         elif response.status_code == requests.codes.not_found:

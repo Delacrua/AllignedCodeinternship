@@ -1,12 +1,15 @@
 import re
+import threading
+import time
+import timeit
+
+import requests
 import urllib.parse
 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from typing import List
-
-import requests
 
 import settings
 
@@ -20,6 +23,10 @@ class PageRankInfoAccumulator:
         self._page_limit = page_limit
         self._page_links = defaultdict(list)
         self._page_rank = {}
+
+    @property
+    def page_rank(self):
+        return self._page_rank
 
 
 class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
@@ -50,37 +57,47 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         internal_links = url_parser.parse(request_text)
         return internal_links
 
-    def run_single_time(self, url: str, visited: set, url_pool: list, session: requests.Session):
+    def scrap_one_url(self, url: str, visited: set, url_pool: list, session: requests.Session):
         if url not in visited:
             visited.add(url)
+
         if len(self._page_links) < self._page_limit:
+            local = threading.local()
+            local.start = timeit.default_timer()
+
             links = self.collect_page_data(url, session)
             processed_links = self._process_wiki_links(links)
             self._page_links[url] = processed_links
             url_pool.extend(processed_links)
 
-    def collect_data_till_limit(self):
+            local.spent_time = timeit.default_timer() - local.start
+            if local.spent_time < 1:
+                time.sleep(1 - local.spent_time)
+
+    def scrap_data_till_limit(self, max_workers: int = settings.WORKERS_SCRAPPING):
+        max_workers = max_workers if max_workers <= settings.MAX_REQUESTS_PER_SECOND else settings.MAX_REQUESTS_PER_SECOND
         session = requests.Session()
         visited = set()
         url_pool = [self._start_url]
         while len(self._page_links) < self._page_limit:
             link_pool_for_workers = url_pool[:]
             url_pool.clear()
-            with ThreadPoolExecutor(max_workers=50) as executor:
-                executor.map(self.run_single_time,
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                executor.map(self.scrap_one_url,
                              link_pool_for_workers,
                              repeat(visited),
                              repeat(url_pool),
                              repeat(session)
                              )
+        session.close()
 
     def count_page_rank(self):
         """
-        The function counts page rank for wiki pages by reversing
-        dictionaries key-value pairs in a way that
-        each string from the lists of values becomes a key, and keys of the
-        original key-value pairs are put into lists of values for new keys
-        and saves results as
+        The method counts page rank for wiki pages by reversing
+        dictionaries key-value pairs in a way that each string from
+        the lists of values becomes a key, and keys of the original
+        key-value pairs are put into lists of values for new keys
+        and saves results in objects _page_rank dictionary
         :return:
         """
         rev_data = {}
@@ -91,9 +108,15 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         self._page_rank = {key: len(value) for key, value in rev_data.items()}
 
 
-if __name__ == '__main__':
-    wiki_scrapper = WikiPageRankInfoAccumulator(
-        'https://en.wikipedia.org/wiki/Superintendent', 100)
-    wiki_scrapper.collect_data_till_limit()
+def main(url: str, limit: int):
+    wiki_scrapper = WikiPageRankInfoAccumulator(url, limit)
+    wiki_scrapper.scrap_data_till_limit()
     wiki_scrapper.count_page_rank()
-    print(wiki_scrapper._page_rank)
+    print(wiki_scrapper.page_rank)
+
+
+if __name__ == '__main__':
+    test_url = 'https://en.wikipedia.org/wiki/Superintendent'
+    test_limit = 100
+    main(test_url, test_limit)
+
