@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from page_ranker import settings
+from .utils import handle_errors
+from .loggers import crawler_logger
 
 
 class Crawler(ABC):
@@ -50,6 +52,7 @@ class WikiCrawler(Crawler):
     """
     a callable class that allows making requests to a URL
     """
+    @handle_errors(logger=crawler_logger)
     def __call__(self, url: str, session: requests.Session) -> Union[str, None, settings.NotSet]:
         """
         method allows to make request to a given URL with given timeout
@@ -70,6 +73,3 @@ class WikiCrawler(Crawler):
 
 if __name__ == '__main__':
     pass
-    # url = 'https://en.wikipedia.org/wiki/California_Distinguished_School'
-    # crawler = WikiCrawler()
-    # print(crawler.get_wiki_url_mask(url))
