@@ -13,7 +13,7 @@ from typing import List
 
 import settings
 
-from source import crawler, parser
+from source import crawlers, parsers, inverters, utils
 
 
 class PageRankInfoAccumulator:
@@ -32,9 +32,10 @@ class PageRankInfoAccumulator:
 class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
     def __init__(self, start_url: str, page_limit: int):
         super().__init__(start_url, page_limit)
-        self.url_crawler = crawler.WikiCrawler
-        self.url_parser = parser.WikiParser
         self._url_mask = self.get_wiki_url_mask(self._start_url)
+        self.url_crawler = crawlers.WikiCrawler
+        self.url_parser = parsers.WikiParser
+        self.dict_inverter = inverters.DictionaryInverterThreading
 
     @staticmethod
     def get_wiki_url_mask(url: str):
@@ -71,7 +72,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
             if local.spent_time < 1:
                 time.sleep(1 - local.spent_time)
 
-    def scrap_data_till_limit(self, max_workers: int = settings.WORKERS_SCRAPPING):
+    def scrap_data_till_limit(self, max_workers: int = settings.THREADS_SCRAPPING):
         max_workers = max_workers if max_workers <= settings.MAX_REQUESTS_PER_SECOND else settings.MAX_REQUESTS_PER_SECOND
         session = requests.Session()
         visited = set()
@@ -91,28 +92,31 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
     def count_page_rank(self):
         """
         The method counts page rank for wiki pages by reversing
-        dictionaries key-value pairs in a way that each string from
-        the lists of values becomes a key, and keys of the original
-        key-value pairs are put into lists of values for new keys
-        and saves results in objects _page_rank dictionary
+        _page_links dictionaries key-value pairs in a way that each
+        string from the lists of values becomes a key, and keys of the
+        original key-value pairs are put into lists of values for new
+        keys and saves results in objects _page_rank dictionary
         :return:
         """
         rev_data = {}
-        for key, values in self._page_links.items():
-            for value in values:
-                rev_data[value] = rev_data.get(value, [])
-                rev_data[value].append(key)
+        self.dict_inverter().invert_dict(rev_data, self._page_links)
         self._page_rank = {key: len(value) for key, value in rev_data.items()}
 
 
 def main(url: str, limit: int):
     wiki_scrapper = WikiPageRankInfoAccumulator(url, limit)
-    wiki_scrapper.scrap_data_till_limit()
-    wiki_scrapper.count_page_rank()
-    print(wiki_scrapper.page_rank)
+    with utils.timer():
+        wiki_scrapper.scrap_data_till_limit()
+    # print(wiki_scrapper._page_links)
+    with utils.timer():
+        wiki_scrapper.count_page_rank()
+    # print(wiki_scrapper.page_rank)
+    with utils.timer():
+        wiki_scrapper.inverter = inverters.DictionaryInverterSync
+        wiki_scrapper.count_page_rank()
 
 
 if __name__ == '__main__':
     test_url = 'https://en.wikipedia.org/wiki/Superintendent'
-    test_limit = 100
+    test_limit = 300
     main(test_url, test_limit)

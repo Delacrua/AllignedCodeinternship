@@ -1,6 +1,7 @@
 import functools
 import logging
 import time
+import timeit
 import traceback
 
 from typing import Optional, Union, Type, Callable, Any
@@ -63,3 +64,17 @@ def handle_errors(
                             raise exc
         return wrapper
     return decorator
+
+
+class timer:
+    """
+    a context manager for measuring of time used for a code block
+    to operate and printing it to stdout
+    """
+    def __enter__(self):
+        self.start = timeit.default_timer()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = timeit.default_timer()
+        print(f'Code block took {(self.end - self.start):.5f} seconds '
+              f'to operate')
