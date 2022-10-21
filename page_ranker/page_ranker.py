@@ -13,7 +13,7 @@ from typing import List
 
 import settings
 
-from utils import crawler, parser
+from source import crawler, parser
 
 
 class PageRankInfoAccumulator:
@@ -38,10 +38,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
 
     @staticmethod
     def get_wiki_url_mask(url: str):
-        mask = re.search(
-            '^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)',
-            url
-        )[0]
+        mask = re.search('^(https?://)(?:www\.)?([^:/?\n]+)', url)[0]
         return mask
 
     def _process_wiki_links(self, links: List[str]):
