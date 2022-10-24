@@ -3,9 +3,9 @@ import requests
 from abc import ABC, abstractmethod
 from typing import Union
 
-from page_ranker import settings
-from .utils import handle_errors
-from .loggers import crawler_logger
+from page_ranker_app import settings
+from page_ranker_app.source.utils import handle_errors
+from page_ranker_app.source.loggers import crawler_logger
 
 
 class Crawler(ABC):

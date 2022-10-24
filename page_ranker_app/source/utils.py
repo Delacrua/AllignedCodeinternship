@@ -6,7 +6,7 @@ import traceback
 
 from typing import Optional, Union, Type, Callable, Any
 
-from page_ranker import settings
+from page_ranker_app import settings
 
 
 def handle_errors(

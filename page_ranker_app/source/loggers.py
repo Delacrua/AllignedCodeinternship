@@ -1,6 +1,6 @@
 import logging
 
-from page_ranker import settings
+from page_ranker_app import settings
 
 
 main_log_file = settings.LOG_DIR.joinpath(settings.LOG_FILE)

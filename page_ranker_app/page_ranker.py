@@ -11,9 +11,8 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from typing import List
 
-import settings
-
-from source import crawlers, parsers, inverters, utils
+from page_ranker_app import settings
+from page_ranker_app.source import crawlers, inverters, parsers, utils
 
 
 class PageRankInfoAccumulator:
@@ -30,12 +29,13 @@ class PageRankInfoAccumulator:
 
 
 class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
+    url_crawler = crawlers.WikiCrawler
+    url_parser = parsers.WikiParser
+    dict_inverter = inverters.DictionaryInverterThreading
+
     def __init__(self, start_url: str, page_limit: int):
         super().__init__(start_url, page_limit)
         self._url_mask = self.get_wiki_url_mask(self._start_url)
-        self.url_crawler = crawlers.WikiCrawler
-        self.url_parser = parsers.WikiParser
-        self.dict_inverter = inverters.DictionaryInverterThreading
 
     @staticmethod
     def get_wiki_url_mask(url: str):
@@ -98,8 +98,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         keys and saves results in objects _page_rank dictionary
         :return:
         """
-        rev_data = {}
-        self.dict_inverter().invert_dict(rev_data, self._page_links)
+        rev_data = self.dict_inverter().invert_dict(self._page_links)
         self._page_rank = {key: len(value) for key, value in rev_data.items()}
 
 
@@ -110,13 +109,20 @@ def main(url: str, limit: int):
     # print(wiki_scrapper._page_links)
     with utils.timer():
         wiki_scrapper.count_page_rank()
+        dict1 = wiki_scrapper.page_rank
     # print(wiki_scrapper.page_rank)
+    with utils.timer():
+        wiki_scrapper.inverter = inverters.DictionaryInverterProcessing
+        wiki_scrapper.count_page_rank()
+        dict2 = wiki_scrapper.page_rank
     with utils.timer():
         wiki_scrapper.inverter = inverters.DictionaryInverterSync
         wiki_scrapper.count_page_rank()
+        dict3 = wiki_scrapper.page_rank
+    print(dict1 == dict2 == dict3)
 
 
 if __name__ == '__main__':
     test_url = 'https://en.wikipedia.org/wiki/Superintendent'
-    test_limit = 300
+    test_limit = 100
     main(test_url, test_limit)

@@ -1,4 +1,5 @@
 import logging
+import os
 import pathlib
 
 
@@ -16,6 +17,8 @@ NOT_SET = NotSet()
 # Threading inverter
 THREADS_INVERTING = 100
 
+# Multiprocessing inverter
+PROCESSES_INVERTING = 20
 
 # ----> crawlers.py defaults <-----
 REQUEST_TIMEOUT = 5
