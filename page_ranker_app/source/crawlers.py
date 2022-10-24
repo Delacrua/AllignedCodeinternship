@@ -9,10 +9,11 @@ from page_ranker_app.source.loggers import crawler_logger
 
 
 class Crawler(ABC):
-    def __init__(self,
-                 timeout: Union[int, float] = settings.REQUEST_TIMEOUT,
-                 default: Union[str, None, settings.NotSet] = settings.NOT_SET,
-                 ):
+    def __init__(
+        self,
+        timeout: Union[int, float] = settings.REQUEST_TIMEOUT,
+        default: Union[str, None, settings.NotSet] = settings.NOT_SET,
+    ):
         """
         object constructor, utilizing a property for value validation
         and conversion
@@ -52,8 +53,13 @@ class WikiCrawler(Crawler):
     """
     a callable class that allows making requests to a URL
     """
+
     @handle_errors(logger=crawler_logger)
-    def __call__(self, url: str, session: requests.Session) -> Union[str, None, settings.NotSet]:
+    def __call__(
+        self,
+        url: str,
+        session: requests.Session,
+    ) -> Union[str, None, settings.NotSet]:
         """
         method allows to make request to a given URL with given timeout
         and default values
@@ -71,5 +77,5 @@ class WikiCrawler(Crawler):
             response.raise_for_status()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass

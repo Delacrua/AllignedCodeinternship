@@ -32,10 +32,10 @@ MAX_REQUESTS_PER_SECOND = 200
 # ----> loggers.py defaults <-----
 LOG_DIR = BASE_DIR
 LOG_FILE = "page_ranker.log"
-LOG_MODE = 'w'
+LOG_MODE = "w"
 
 # Crawler logger
-CRAWLER_LOGGER_NAME = 'Crawler'
+CRAWLER_LOGGER_NAME = "Crawler"
 CRAWLER_LOGGER_LEVEL = logging.INFO
 CRAWLER_FORMAT = "%(name)s %(levelname)s %(asctime)s - %(message)s"
 
@@ -49,5 +49,5 @@ MAX_RETRIES = 2
 RETRY_DELAY = 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
