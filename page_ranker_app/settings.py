@@ -1,3 +1,7 @@
+"""
+File contains default settings for all subsystems of the project
+"""
+
 import logging
 import pathlib
 
@@ -25,7 +29,7 @@ REQUEST_TIMEOUT = 5
 
 
 # ----> page_ranker.py defaults <-----
-THREADS_SCRAPPING = 100  # 1 worker does 1 request per second
+THREADS_SCRAPPING = 200  # 1 worker does 1 request per second
 MAX_REQUESTS_PER_SECOND = 200
 
 

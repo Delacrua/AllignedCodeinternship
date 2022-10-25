@@ -12,6 +12,7 @@ class Crawler(ABC):
     """
     an interface for Crawler class
     """
+
     def __init__(
         self,
         timeout: Union[int, float] = settings.REQUEST_TIMEOUT,
@@ -51,7 +52,11 @@ class Crawler(ABC):
             self._timeout = new_value
 
     @abstractmethod
-    def __call__(self, url: str, session: requests.Session,) -> Union[str, None, settings.NotSet]:
+    def __call__(
+        self,
+        url: str,
+        session: requests.Session,
+    ) -> Union[str, None, settings.NotSet]:
         raise NotImplementedError
 
 
@@ -59,6 +64,7 @@ class WikiCrawler(Crawler):
     """
     a callable class that allows making requests to a URL
     """
+
     @handle_errors(logger=crawler_logger)
     def __call__(
         self,
@@ -70,6 +76,7 @@ class WikiCrawler(Crawler):
         and default values
 
         :param url: given URL
+        :param session: given Session instance
         :return: response content
         :raises appropriate type Error if it happens during runtime
         except for the 404 status error

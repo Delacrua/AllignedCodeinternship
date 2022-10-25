@@ -13,6 +13,7 @@ class DictionaryInverter(ABC):
     """
     an interface for dictionary reversing classes
     """
+
     @staticmethod
     def merge_json(base_dict: Dict, *args: Dict) -> None:
         """
@@ -40,7 +41,9 @@ class DictionaryInverter(ABC):
                     base_dict[key] = value
 
     @abstractmethod
-    def invert_dict(self, source_dict: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def invert_dict(
+        self, source_dict: Dict[str, List[str]]
+    ) -> Dict[str, List[str]]:
         """
         The method inverts dictionaries key-value pairs in a way that
         each string from the lists of values becomes a key, and keys
@@ -54,7 +57,9 @@ class DictionaryInverter(ABC):
 
 
 class DictionaryInverterSync(DictionaryInverter):
-    def invert_dict(self, source_dict: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def invert_dict(
+        self, source_dict: Dict[str, List[str]]
+    ) -> Dict[str, List[str]]:
         """
         The method inverts all dictionary key-value pairs in a way that
         each string from the lists of values becomes a key, and keys

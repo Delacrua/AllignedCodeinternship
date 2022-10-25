@@ -143,6 +143,7 @@ class timer:
     a context manager for measuring of time used for a code block
     to operate and printing it to stdout
     """
+
     def __enter__(self):
         self.start = timeit.default_timer()
 

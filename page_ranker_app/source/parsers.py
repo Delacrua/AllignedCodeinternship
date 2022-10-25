@@ -8,6 +8,7 @@ class Parser(ABC):
     """
     an interface for Parser class
     """
+
     @abstractmethod
     def parse(self, request_text: str) -> List[str]:
         raise NotImplementedError
@@ -17,6 +18,7 @@ class WikiParser(Parser):
     """
     a class that processes data from Wikipedia pages
     """
+
     def parse(self, request_text: str) -> List[str]:
         """
         method for parsing and processing of Wikipedia page data, it
