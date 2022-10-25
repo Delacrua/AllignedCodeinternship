@@ -5,7 +5,11 @@ from page_ranker_app import settings
 
 main_log_file = settings.LOG_DIR.joinpath(settings.LOG_FILE)
 
-crawler_handler = logging.FileHandler(main_log_file, mode=settings.LOG_MODE)
+crawler_handler = logging.FileHandler(
+    main_log_file,
+    mode=settings.LOG_MODE,
+    encoding=settings.LOG_ENCODING,
+)
 crawler_formatter = logging.Formatter(settings.CRAWLER_FORMAT)
 crawler_handler.setFormatter(crawler_formatter)
 

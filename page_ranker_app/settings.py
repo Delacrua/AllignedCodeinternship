@@ -1,5 +1,4 @@
 import logging
-import os
 import pathlib
 
 
@@ -20,6 +19,7 @@ THREADS_INVERTING = 100
 # Multiprocessing inverter
 PROCESSES_INVERTING = 20
 
+
 # ----> crawlers.py defaults <-----
 REQUEST_TIMEOUT = 5
 
@@ -33,6 +33,7 @@ MAX_REQUESTS_PER_SECOND = 200
 LOG_DIR = BASE_DIR
 LOG_FILE = "page_ranker.log"
 LOG_MODE = "w"
+LOG_ENCODING = "utf-8"
 
 # Crawler logger
 CRAWLER_LOGGER_NAME = "Crawler"
@@ -42,11 +43,14 @@ CRAWLER_FORMAT = "%(name)s %(levelname)s %(asctime)s - %(message)s"
 
 # ----> utils.py defaults <-----
 # handle_errors
-EXCEPTION_RE_RAISE = True
+EXCEPTION_RE_RAISE = False
 LOG_ERRORS = True
 EXCEPTION_TYPE = Exception
 MAX_RETRIES = 2
 RETRY_DELAY = 1
+
+# count_distribution
+BINS_NUMBER = 10
 
 
 if __name__ == "__main__":

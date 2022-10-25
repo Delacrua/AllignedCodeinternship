@@ -1,8 +1,10 @@
 import functools
 import logging
+import math
 import time
 import timeit
 import traceback
+import matplotlib.pyplot as plt
 
 from typing import Optional, Union, Type, Callable, Any
 
@@ -76,6 +78,53 @@ def handle_errors(
         return wrapper
 
     return decorator
+
+
+def count_distribution(
+    collection: dict[str:int],
+    number: int = settings.BINS_NUMBER,
+) -> dict[str:int]:
+    """
+    The function calculates the distribution of numbers in the given
+    dictionary where values are integers (similar to collections.Counter),
+    splitting it into the specified number of segments
+    :param collection: the given collection
+    :param number: the specified number of segments
+    :return: a dict of distribution of elements in segments
+    """
+    values = [math.log(value) for value in collection.values()]
+    minimum, maximum = min(values), max(values)
+    interval = (maximum - minimum) / number
+    result = [0 for _ in range(number)]
+    for num in values:
+        index = (num - minimum) / interval
+        result[min(int(index), number - 1)] += 1
+    keys = [
+        f"{round(interval * n, 1)}-{round(interval * (n + 1), 1)}"
+        for n in range(number)
+    ]
+
+    return dict(zip(keys, result))
+
+
+def print_hist_and_plot_combined(freq_counter: dict[str:int]) -> None:
+    plt.figure(figsize=(16, 6))
+    plt.subplot(121)
+    plt.bar(
+        freq_counter.keys(),
+        freq_counter.values(),
+        log=True,
+        color="blue",
+        edgecolor="black",
+    )
+    plt.xlabel("Log(Page Rank)")
+    plt.ylabel("Number of pages")
+    plt.subplot(122)
+    plt.plot(freq_counter.keys(), freq_counter.values())
+    plt.xlabel("Log(Page Rank)")
+    plt.ylabel("Number of pages")
+    plt.suptitle("Distribution of log(Page Rank)")
+    plt.show()
 
 
 class timer:

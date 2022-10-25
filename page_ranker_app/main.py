@@ -1,25 +1,14 @@
 from page_ranker_app.source.page_ranker import WikiPageRankInfoAccumulator
-from page_ranker_app.source import utils, inverters
+from page_ranker_app.source import utils
 
 
 def main(url: str, limit: int):
-    wiki_scrapper = WikiPageRankInfoAccumulator(url, limit)
-    with utils.timer():
-        wiki_scrapper.scrap_data_till_limit()
-    # print(wiki_scrapper._page_links)
-    with utils.timer():
-        wiki_scrapper.count_page_rank()
-        dict1 = wiki_scrapper.page_rank
-    # print(wiki_scrapper.page_rank)
-    with utils.timer():
-        wiki_scrapper.inverter = inverters.DictionaryInverterProcessing
-        wiki_scrapper.count_page_rank()
-        dict2 = wiki_scrapper.page_rank
-    with utils.timer():
-        wiki_scrapper.inverter = inverters.DictionaryInverterSync
-        wiki_scrapper.count_page_rank()
-        dict3 = wiki_scrapper.page_rank
-    print(dict1 == dict2 == dict3)
+    wiki_scraper = WikiPageRankInfoAccumulator(url, limit)
+    wiki_scraper.scrap_data_till_limit()
+    wiki_scraper.count_page_rank()
+
+    distribution = utils.count_distribution(wiki_scraper.page_rank)
+    utils.print_hist_and_plot_combined(distribution)
 
 
 if __name__ == "__main__":
