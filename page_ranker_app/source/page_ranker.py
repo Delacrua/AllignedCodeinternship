@@ -1,3 +1,4 @@
+import concurrent
 import re
 import requests
 import threading
@@ -7,8 +8,9 @@ import urllib.parse
 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from itertools import repeat
 from typing import List
+
+from tqdm import tqdm
 
 from page_ranker_app import settings
 from page_ranker_app.source import crawlers, inverters, parsers
@@ -95,23 +97,38 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
             if max_workers <= settings.MAX_REQUESTS_PER_SECOND
             else settings.MAX_REQUESTS_PER_SECOND
         )
-        session = requests.Session()
         visited = set()
         url_pool = [self._start_url]
-        while len(self._page_links) < self._page_limit:
-            link_pool_for_workers = url_pool[:]
-            url_pool.clear()
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                lock = threading.Lock()
-                executor.map(
-                    self.scrap_one_url,
-                    link_pool_for_workers,
-                    repeat(lock),
-                    repeat(visited),
-                    repeat(url_pool),
-                    repeat(session),
-                )
-        session.close()
+        with tqdm(
+            total=self._page_limit
+        ) as pbar, requests.Session() as session:
+            lock = threading.Lock()
+
+            while len(self._page_links) < self._page_limit:
+                diff = self._page_limit - len(self._page_links)
+                if len(url_pool) < diff:
+                    link_pool_for_workers = url_pool[:]
+                    url_pool.clear()
+                else:
+                    link_pool_for_workers = url_pool[:diff]
+                    url_pool[:diff] = []
+
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = []
+                    for url in link_pool_for_workers:
+                        futures.append(
+                            executor.submit(
+                                self.scrap_one_url,
+                                url,
+                                lock,
+                                visited,
+                                url_pool,
+                                session,
+                            )
+                        )
+                    for _ in concurrent.futures.as_completed(futures):
+                        if pbar.n < self._page_limit:
+                            pbar.update(1)
 
     def count_page_rank(self):
         """
