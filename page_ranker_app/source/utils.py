@@ -6,7 +6,7 @@ import timeit
 import traceback
 import matplotlib.pyplot as plt
 
-from typing import Optional, Union, Type, Callable, Any
+from typing import Optional, Union, Type, Callable, Any, Dict
 
 from page_ranker_app import settings
 
@@ -23,6 +23,7 @@ def handle_errors(
 ) -> Callable:
     """
     A decorator used to handle and log exceptions
+
     :param logger: a logger object for logging exceptions
     :param re_raise: shows if Exceptions listed in exc_type will be
     reraised
@@ -38,6 +39,7 @@ def handle_errors(
     def decorator(func: Callable) -> Callable:
         """
         A decorator wraps given func with a wrapper
+
         :param func: given func
         :return: wrapped func
         """
@@ -47,6 +49,7 @@ def handle_errors(
             """
             a wrapper that implements the logics of handle_error
             decorator, according to arguments given
+
             :param args: any number of positional arguments
             :param kwargs: any number of keyword arguments
             :return:
@@ -81,13 +84,14 @@ def handle_errors(
 
 
 def count_distribution(
-    collection: dict[str:int],
+    collection: Dict[str, int],
     number: int = settings.BINS_NUMBER,
-) -> dict[str:int]:
+) -> Dict[str, int]:
     """
     The function calculates the distribution of numbers in the given
     dictionary where values are integers (similar to collections.Counter),
     splitting it into the specified number of segments
+
     :param collection: the given collection
     :param number: the specified number of segments
     :return: a dict of distribution of elements in segments
@@ -107,7 +111,14 @@ def count_distribution(
     return dict(zip(keys, result))
 
 
-def print_hist_and_plot_combined(freq_counter: dict[str:int]) -> None:
+def print_hist_and_plot_combined(freq_counter: Dict[str, int]) -> None:
+    """
+    A function that prints a combined figure of a histogram and a plot
+    of distribution of values from a dictionary
+
+    :param freq_counter: a dictionary with distribution of values
+    :return: None
+    """
     plt.figure(figsize=(16, 6))
     plt.subplot(121)
     plt.bar(
@@ -132,7 +143,6 @@ class timer:
     a context manager for measuring of time used for a code block
     to operate and printing it to stdout
     """
-
     def __enter__(self):
         self.start = timeit.default_timer()
 

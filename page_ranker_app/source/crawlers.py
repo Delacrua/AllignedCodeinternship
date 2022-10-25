@@ -9,6 +9,9 @@ from page_ranker_app.source.loggers import crawler_logger
 
 
 class Crawler(ABC):
+    """
+    an interface for Crawler class
+    """
     def __init__(
         self,
         timeout: Union[int, float] = settings.REQUEST_TIMEOUT,
@@ -17,6 +20,7 @@ class Crawler(ABC):
         """
         object constructor, utilizing a property for value validation
         and conversion
+
         :param timeout: a timeout for making a request in seconds
         :param default: a default value for whenever a request fails
         with 404 status
@@ -25,17 +29,19 @@ class Crawler(ABC):
         self.default = default
 
     @property
-    def timeout(self):
+    def timeout(self) -> Union[int, float]:
         """
         getter for timeout attribute
-        :return: timeout attribute
+
+        :return: timeout attribute value
         """
         return self._timeout
 
     @timeout.setter
-    def timeout(self, new_value: Union[int, float]):
+    def timeout(self, new_value: Union[int, float]) -> None:
         """
         setter for timeout attribute
+
         :param new_value: new value for timeout attribute
         :return: None
         """
@@ -45,7 +51,7 @@ class Crawler(ABC):
             self._timeout = new_value
 
     @abstractmethod
-    def __call__(self, *args, **kwargs):
+    def __call__(self, url: str, session: requests.Session,) -> Union[str, None, settings.NotSet]:
         raise NotImplementedError
 
 
@@ -53,7 +59,6 @@ class WikiCrawler(Crawler):
     """
     a callable class that allows making requests to a URL
     """
-
     @handle_errors(logger=crawler_logger)
     def __call__(
         self,
@@ -63,6 +68,7 @@ class WikiCrawler(Crawler):
         """
         method allows to make request to a given URL with given timeout
         and default values
+
         :param url: given URL
         :return: response content
         :raises appropriate type Error if it happens during runtime

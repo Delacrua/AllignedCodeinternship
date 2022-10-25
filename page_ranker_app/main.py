@@ -13,5 +13,5 @@ def main(url: str, limit: int):
 
 if __name__ == "__main__":
     test_url = "https://en.wikipedia.org/wiki/Superintendent"
-    test_limit = 1000
+    test_limit = 100
     main(test_url, test_limit)

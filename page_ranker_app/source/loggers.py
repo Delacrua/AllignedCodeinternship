@@ -1,3 +1,6 @@
+"""
+Loggers configuration for page_ranker utility
+"""
 import logging
 
 from page_ranker_app import settings

@@ -59,8 +59,9 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         url_crawler = self.url_crawler()
         url_parser = self.url_parser()
         request_text = url_crawler(url, session)
-        internal_links = url_parser.parse(request_text)
-        return internal_links
+        if not isinstance(request_text, settings.NotSet):
+            internal_links = url_parser.parse(request_text)
+            return internal_links
 
     def scrap_one_url(
         self,
@@ -79,14 +80,15 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
             local.start = timeit.default_timer()
 
             local.links = self.collect_page_data(url, session)
-            local.processed_links = self._process_wiki_links(local.links)
-            self._page_links[url] = local.processed_links
-            with lock:
-                url_pool.extend(local.processed_links)
+            if local.links:
+                local.processed_links = self._process_wiki_links(local.links)
+                self._page_links[url] = local.processed_links
+                with lock:
+                    url_pool.extend(local.processed_links)
 
-            local.spent_time = timeit.default_timer() - local.start
-            if local.spent_time < 1:
-                time.sleep(1 - local.spent_time)
+                local.spent_time = timeit.default_timer() - local.start
+                if local.spent_time < 1:
+                    time.sleep(1 - local.spent_time)
 
     def scrap_data_till_limit(
         self,
