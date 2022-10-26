@@ -1,4 +1,4 @@
-from page_ranker_app.source.page_ranker import WikiPageRankInfoAccumulator
+from page_ranker_app.source.page_rankers import WikiPageRankInfoAccumulator
 from page_ranker_app.source import utils
 
 

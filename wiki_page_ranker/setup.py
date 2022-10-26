@@ -8,15 +8,14 @@ with open("requirements.txt", "r", encoding="utf-8") as reqs:
 
 
 setup(
-    name='wikipedia_page_ranker',
-    version='1.0',
-    author='Uladzimir Fiodarau',
-    author_email='ufiodarau@gmail.com',
-    description='A page ranker for Wikipedia',
+    name="wikipedia_page_ranker",
+    version="1.0",
+    author="Uladzimir Fiodarau",
+    author_email="ufiodarau@gmail.com",
+    description="A page ranker for Wikipedia",
     long_description=description,
     packages=find_packages(),
-    package_data={'': ['*.txt']
-                  },
+    package_data={"": ["*.txt"]},
     install_requires=[requirements],
     classifiers=[
         "Programming Language :: Python :: 3.10",

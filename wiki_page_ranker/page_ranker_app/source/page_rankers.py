@@ -73,7 +73,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         self._url_mask = self.get_wiki_url_mask(self._start_url)
 
     @staticmethod
-    def get_wiki_url_mask(url: str):
+    def get_wiki_url_mask(url: str) -> str:
         """
         method processes a URL and returns a URL mask, that contains
         Scheme, Sub-domain, Domain and Top-level domain
@@ -84,7 +84,7 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         mask = re.search("^(https?://)(?:www\.)?([^:/?\n]+)", url)[0]
         return mask
 
-    def _process_wiki_links(self, links: List[str]):
+    def _process_wiki_links(self, links: List[str]) -> List[str]:
         """
         method processes internal Wikipedia links by adding a URL mask
         to them which is saved in self._url_mask and replacing inner
@@ -154,7 +154,9 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
 
                 local.links = self.collect_page_data(url, session)
                 if local.links:
-                    local.processed_links = self._process_wiki_links(local.links)
+                    local.processed_links = self._process_wiki_links(
+                        local.links
+                    )
                     with lock:
                         self._page_links[url] = local.processed_links
                         url_pool.extend(local.processed_links)
