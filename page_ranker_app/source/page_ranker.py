@@ -148,20 +148,22 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
             with lock:
                 visited.add(url)
 
-        if len(self._page_links) < self._page_limit:
-            local = threading.local()
-            local.start = timeit.default_timer()
+            if len(self._page_links) < self._page_limit:
+                local = threading.local()
+                local.start = timeit.default_timer()
 
-            local.links = self.collect_page_data(url, session)
-            if local.links:
-                local.processed_links = self._process_wiki_links(local.links)
-                with lock:
-                    self._page_links[url] = local.processed_links
-                    url_pool.extend(local.processed_links)
+                local.links = self.collect_page_data(url, session)
+                if local.links:
+                    local.processed_links = self._process_wiki_links(local.links)
+                    with lock:
+                        self._page_links[url] = local.processed_links
+                        url_pool.extend(local.processed_links)
 
-                local.spent_time = timeit.default_timer() - local.start
-                if local.spent_time < 1:
-                    time.sleep(1 - local.spent_time)
+                    local.spent_time = timeit.default_timer() - local.start
+                    if local.spent_time < 1:
+                        time.sleep(1 - local.spent_time)
+        else:
+            return settings.NOT_SET
 
     def scrap_data_till_limit(
         self,
@@ -190,6 +192,8 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
 
             while len(self._page_links) < self._page_limit:
                 diff = self._page_limit - len(self._page_links)
+                url_pool = [url for url in url_pool if url not in visited]
+
                 if len(url_pool) < diff:
                     link_pool_for_workers = url_pool[:]
                     url_pool.clear()
@@ -210,8 +214,8 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
                                 session,
                             )
                         )
-                    for _ in concurrent.futures.as_completed(futures):
-                        if prog_bar.n < self._page_limit:
+                    for future in concurrent.futures.as_completed(futures):
+                        if future.result() != settings.NOT_SET:
                             prog_bar.update(1)
 
     def count_page_rank(self) -> None:
