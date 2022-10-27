@@ -15,7 +15,7 @@ setup(
     description="A page ranker for Wikipedia",
     long_description=description,
     packages=find_packages(),
-    package_data={"": ["*.txt"]},
+    package_data={"": ["*.txt", "*.html"]},
     install_requires=[requirements],
     classifiers=[
         "Programming Language :: Python :: 3.10",
