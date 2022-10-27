@@ -56,11 +56,11 @@ def test_merge_json_value_error(test_input: Tuple[Dict], expected: Dict):
 inverting_assets = [
     (
         {"a": ["url1"], "b": ["url3", "url5"], "c": ["url4"]},
-        {"url1": ["a"], "url3": ["b"], "url5": ["b"], "url4": ["c"]},
+        {"url1": {"a"}, "url3": {"b"}, "url5": {"b"}, "url4": {"c"}},
     ),
     (
         {"a": ["url1", "url2"], "b": ["url3", "url4"], "c": ["url4"]},
-        {"url1": ["a"], "url2": ["a"], "url3": ["b"], "url4": ["b", "c"]},
+        {"url1": {"a"}, "url2": {"a"}, "url3": {"b"}, "url4": {"b", "c"}},
     ),
 ]
 
@@ -70,7 +70,9 @@ def test_invert_dict_sync(
     source_dict: Dict[str, List[str]], expected: Dict[str, List[str]]
 ):
     inverter = inverters.DictionaryInverterSync()
-    assert inverter.invert_dict(source_dict) == expected
+    result = inverter.invert_dict(source_dict)
+    un_result = {key: set(value) for key, value in result.items()}
+    assert un_result == expected
 
 
 @pytest.mark.parametrize("source_dict, expected", inverting_assets)
@@ -78,4 +80,16 @@ def test_invert_dict_threaded(
     source_dict: Dict[str, List[str]], expected: Dict[str, List[str]]
 ):
     inverter = inverters.DictionaryInverterThreading()
-    assert inverter.invert_dict(source_dict) == expected
+    result = inverter.invert_dict(source_dict)
+    un_result = {key: set(value) for key, value in result.items()}
+    assert un_result == expected
+
+
+@pytest.mark.parametrize("source_dict, expected", inverting_assets)
+def test_invert_dict_processed(
+    source_dict: Dict[str, List[str]], expected: Dict[str, List[str]]
+):
+    inverter = inverters.DictionaryInverterProcessing()
+    result = inverter.invert_dict(source_dict)
+    un_result = {key: set(value) for key, value in result.items()}
+    assert un_result == expected

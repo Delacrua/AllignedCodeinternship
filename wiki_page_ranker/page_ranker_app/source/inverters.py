@@ -1,9 +1,8 @@
-import multiprocessing
+import concurrent
 import threading
 from abc import ABC, abstractmethod
 
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from itertools import repeat
 from typing import List, Dict
 
 from page_ranker_app import settings
@@ -57,6 +56,10 @@ class DictionaryInverter(ABC):
 
 
 class DictionaryInverterSync(DictionaryInverter):
+    """
+    a dictionary inverter class that works synchronously
+    """
+
     def invert_dict(
         self, source_dict: Dict[str, List[str]]
     ) -> Dict[str, List[str]]:
@@ -78,32 +81,30 @@ class DictionaryInverterSync(DictionaryInverter):
 
 
 class DictionaryInverterThreading(DictionaryInverter):
+    """
+    a dictionary inverter class that works concurrently using multithreading
+    """
+
+    @staticmethod
     def invert_key_value(
-        self,
-        lock: threading.Lock,
-        result_dict: Dict[str, List[str]],
-        dictionary: Dict[str, List[str]],
         key: str,
-    ) -> None:
+        list_of_values: List[str],
+    ) -> Dict[str, List[str]]:
         """
         a method that inverts a single dictionary key-value pair
         in a way that each string from the lists of values becomes
         a key, and key of the original key-value pair is put into list
-        of values for new keys and merges these reversed pairs in
-        a result_dict dictionary
-        Uses a lock instance for preventing race conditions
-        :param lock:  a lock instance
-        :param result_dict: a dictionary
-        :param dictionary: an original dictionary
+        of values for new keys and returns that reversed dict
+
+        :param list_of_values: a list of values
         :param key: a key for getting key-value pair
-        :return: None
+        :return: a reversed dict
         """
         local = threading.local()
-        list_of_values = dictionary[key]
+        local.temp_dict = {}
         for value in list_of_values:
-            local.temp_dict = {value: [key]}
-            with lock:
-                self.merge_json(result_dict, local.temp_dict)
+            local.temp_dict[value] = [key]
+        return local.temp_dict
 
     def invert_dict(
         self,
@@ -123,43 +124,41 @@ class DictionaryInverterThreading(DictionaryInverter):
         """
         inverted_dict = {}
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            lock = threading.Lock()
-            executor.map(
-                self.invert_key_value,
-                repeat(lock),
-                repeat(inverted_dict),
-                repeat(source_dict),
-                source_dict,
-            )
+            futures = [
+                executor.submit(self.invert_key_value, key, value)
+                for key, value in source_dict.items()
+            ]
+
+            for future in concurrent.futures.as_completed(futures):
+                if isinstance(future.result(), dict):
+                    self.merge_json(inverted_dict, future.result())
         return inverted_dict
 
 
 class DictionaryInverterProcessing(DictionaryInverter):
+    """
+    a dictionary inverter class that works concurrently using multiprocessing
+    """
+
+    @staticmethod
     def invert_key_value(
-        self,
-        lock: multiprocessing.Lock,
-        result_dict: Dict[str, List[str]],
-        dictionary: Dict[str, List[str]],
         key: str,
-    ):
+        list_of_values: List[str],
+    ) -> Dict[str, List[str]]:
         """
         a method that inverts a single dictionary key-value pair
         in a way that each string from the lists of values becomes
         a key, and key of the original key-value pair is put into list
-        of values for new keys and merges these reversed pairs in
-        a result_dict dictionary
-        Uses a lock instance for preventing race conditions
-        :param lock:  a lock instance
-        :param result_dict: a dictionary
-        :param dictionary: an original dictionary
+        of values for new keys and returns that reversed dict
+
+        :param list_of_values: a list of values
         :param key: a key for getting key-value pair
         :return: None
         """
-        list_of_values = dictionary[key]
+        temp_dict = {}
         for value in list_of_values:
-            temp_dict = {value: [key]}
-            with lock:
-                self.merge_json(result_dict, temp_dict)
+            temp_dict[value] = [key]
+        return temp_dict
 
     def invert_dict(
         self,
@@ -179,12 +178,11 @@ class DictionaryInverterProcessing(DictionaryInverter):
         """
         inverted_dict = {}
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            lock = multiprocessing.Lock()
-            executor.map(
-                self.invert_key_value,
-                repeat(lock),
-                repeat(inverted_dict),
-                repeat(source_dict),
-                source_dict,
-            )
+            futures = [
+                executor.submit(self.invert_key_value, key, value)
+                for key, value in source_dict.items()
+            ]
+            for future in concurrent.futures.as_completed(futures):
+                if isinstance(future.result(), dict):
+                    self.merge_json(inverted_dict, future.result())
         return inverted_dict

@@ -229,7 +229,10 @@ class WikiPageRankInfoAccumulator(PageRankInfoAccumulator):
         :return: None
         """
         rev_data = self.dict_inverter().invert_dict(self._page_links)
-        self._page_rank = {key: len(value) for key, value in rev_data.items()}
+        unique_data = {key: set(value) for key, value in rev_data.items()}
+        self._page_rank = {
+            key: len(value) for key, value in unique_data.items()
+        }
 
 
 if __name__ == "__main__":

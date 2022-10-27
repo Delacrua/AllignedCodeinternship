@@ -110,7 +110,7 @@ page_rank_assets = [
 
 @pytest.mark.parametrize("source_dict, expected", page_rank_assets)
 def test_wiki_page_ranker_count_page_rank(source_dict, expected):
-    url = 'https://en.wikipedia.org/'
+    url = "https://en.wikipedia.org/"
     page_ranker = page_rankers.WikiPageRankInfoAccumulator(url, 1)
     page_ranker._page_links = source_dict
     page_ranker.count_page_rank()
