@@ -3,6 +3,8 @@ import requests
 from abc import ABC, abstractmethod
 from typing import Union
 
+from requests import HTTPError
+
 from page_ranker_app import settings
 from page_ranker_app.source.utils import handle_errors
 from page_ranker_app.source.loggers import crawler_logger
@@ -87,7 +89,7 @@ class WikiCrawler(Crawler):
         elif response.status_code == requests.codes.not_found:
             return self.default
         else:
-            response.raise_for_status()
+            raise HTTPError(f"Crawler could not get data from {url}")
 
 
 if __name__ == "__main__":

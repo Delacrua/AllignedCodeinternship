@@ -153,3 +153,21 @@ class timer:
             f"Code block took {(self.end - self.start):.5f} seconds "
             f"to operate"
         )
+
+
+def mock_decorator(*args, **kwargs):
+    """
+    a mock decorator for testing purposes
+    :param args:
+    :param kwargs:
+    :return:
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def decorated_function(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
